@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -5,9 +6,33 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div id="app">
-    </div>
-    <script src="script.js">
-    </script>
+      <div id="map-container"></div>
   </body>
+  <script>
+    var width = 900,
+        height = 600;
+
+    var svg = d3.select("#map-container").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    var projection = d3.geoMercator()
+        .scale(50000)
+        .center([-73.94, 40.70]); // long, lat of NYC
+
+    var path = d3.geoPath()
+        .projection(projection);
+    
+    d3.json("neighbs.json").then(function (neighbs) {
+        svg
+          .selectAll("path")
+          .data(topojson.feature(neighbs, neighbs.objects.neighbs).features)
+          .enter()
+          .append("path")
+          .attr("d", path)
+          .attr("fill", "#D9F0FF")
+          .attr("stroke", "#A3D5FF")
+          .attr("stroke-width", 1);
+    });
+</script>
 </html>
