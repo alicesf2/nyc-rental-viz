@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "d3": "^7.3.0",
+    "http-server": "^14.1.0",
+    "queue": "^6.0.2",
+    "topojson": "^3.0.2",
+    "topojson-client": "^3.1.0"
+  }
+}
