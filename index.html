@@ -27,7 +27,6 @@
         .projection(projection);
     
     d3.csv("rent.csv").then(function(data) {
-        console.log(data)
 
         // create chloropleth scale
         var dataArray = [];
@@ -67,21 +66,57 @@
                         json[j].properties['rent'] = dataRent;
 
                         // stop looking through the json
-                        break;
+                        break;  
                     }
                 }
             }
 
+            // create a tooltip
+            var tooltip = d3.select("#map-container")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+
+            // Three function that change the tooltip when user hover / move / leave a cell
+            var mouseover = function(d) {
+                tooltip
+                .style("opacity", 1)
+                d3.select(this)
+                .attr("stroke-width", 1)
+                .style("opacity", 1)
+                
+            }
+
+            var mousemove = function(d) {
+                tooltip
+                .html(`${d.properties.name}<br/>Avg 2021 Rent: $${d.properties.rent}.00`)
+                .style("left", (d3.mouse(this)[0]+30) + "px")
+                .style("top", (d3.mouse(this)[1]) + "px")
+            }
+
+            var mouseleave = function(d) {
+                tooltip
+                .style("opacity", 0)
+                d3.select(this)
+                .attr("stroke-width", 0.5)
+                .style("opacity", 0.8)
+            }
+
+            // draw map
             svg
             .selectAll("path")
             .data(json)
             .enter()
             .append("path")
-            .attr("d", path)
-            .attr("fill", "#808080")
-            .attr("stroke", "#000000")
-            .attr("stroke-width", 0.5)
-            .style("fill", function(d) { return ramp(d.properties.rent) });
+                .attr("d", path)
+                .attr("fill", "#808080")
+                .attr("stroke", "#000000")
+                .attr("stroke-width", 0.5)
+                .style("fill", function(d) { return ramp(d.properties.rent) })
+                .style("opacity", 0.8)
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave);
 
             // add a legend
 		    var w = 140, h = 300;

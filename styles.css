@@ -14,3 +14,16 @@
 	stroke: #000;
 	shape-rendering: crispEdges;
 }
+
+
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: auto;					
+    height: auto;					
+    padding: 2px;				
+    font: 8px sans-serif;		
+    background: white;	
+    border: 0.5px solid black;				
+    pointer-events: none;			
+}
