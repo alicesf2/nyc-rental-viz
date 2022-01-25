@@ -12,8 +12,8 @@
     var width = 900,
         height = 600;
     
-    var lowColor = '#f9f9f9',
-        highColor = '#bc2a66';
+    var lowColor = '#fffbaf',
+        highColor = '#ab2aed';
 
     var svg = d3.select("#map-container").append("svg")
         .attr("width", width)
@@ -39,7 +39,7 @@
         }
         var minVal = d3.min(dataArray)
         var maxVal = d3.max(dataArray)
-        var ramp = d3.scaleLinear().domain([minVal,maxVal]).range([lowColor,highColor])
+        var ramp = d3.scaleLinear().domain([minVal * 0.7,maxVal * 0.7]).range([lowColor,highColor])
 
         d3.json("neighbs.json").then(function(json) {
             // convert topojson to json
@@ -78,9 +78,10 @@
             .enter()
             .append("path")
             .attr("d", path)
-            .attr("fill", "#D9F0FF")
-            .attr("stroke", "#A3D5FF")
-            .attr("stroke-width", 1);
+            .attr("fill", "#808080")
+            .attr("stroke", "#000000")
+            .attr("stroke-width", 0.5)
+            .style("fill", function(d) { return ramp(d.properties.rent) });
         });
     })
     
