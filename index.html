@@ -11,6 +11,9 @@
   <script>
     var width = 900,
         height = 600;
+    
+    var lowColor = '#f9f9f9',
+        highColor = '#bc2a66';
 
     var svg = d3.select("#map-container").append("svg")
         .attr("width", width)
@@ -23,16 +26,63 @@
     var path = d3.geoPath()
         .projection(projection);
     
-    d3.json("neighbs.json").then(function (neighbs) {
-        svg
-          .selectAll("path")
-          .data(topojson.feature(neighbs, neighbs.objects.neighbs).features)
-          .enter()
-          .append("path")
-          .attr("d", path)
-          .attr("fill", "#D9F0FF")
-          .attr("stroke", "#A3D5FF")
-          .attr("stroke-width", 1);
-    });
+    d3.csv("rent.csv").then(function(data) {
+        console.log(data)
+
+        // create chloropleth scale
+        var dataArray = [];
+        for (var i = 0; i < data.length; i++) {
+            var novRent = data[i]['2021-11']
+            if (novRent !== "") {
+                dataArray.push(novRent)
+            }
+        }
+        var minVal = d3.min(dataArray)
+        var maxVal = d3.max(dataArray)
+        var ramp = d3.scaleLinear().domain([minVal,maxVal]).range([lowColor,highColor])
+
+        d3.json("neighbs.json").then(function(json) {
+            // convert topojson to json
+            json = topojson.feature(json, json.objects.neighbs).features
+
+            // loop through each neighborhood in the csv file
+            for (var i = 0; i < data.length; i++) {
+
+                // grab neighborhood name
+                var dataNeighborhood = data[i]['areaName']
+
+                // grab neighborhood rent 
+                var dataRent = parseFloat(data[i]['2021-11']);
+                if (Number.isNaN(dataRent)) {
+                    continue
+                }
+
+                // find the corresponding neighborhood inside the json
+                for (var j = 0; j < json.length; j++) {
+                    var jsonNeighborhood = json[j].properties.name
+
+                    if (dataNeighborhood == jsonNeighborhood) {
+
+                        // copy data value into json
+                        json[j].properties['rent'] = dataRent;
+
+                        // stop looking through the json
+                        break;
+                    }
+                }
+            }
+
+            svg
+            .selectAll("path")
+            .data(json)
+            .enter()
+            .append("path")
+            .attr("d", path)
+            .attr("fill", "#D9F0FF")
+            .attr("stroke", "#A3D5FF")
+            .attr("stroke-width", 1);
+        });
+    })
+    
 </script>
 </html>
