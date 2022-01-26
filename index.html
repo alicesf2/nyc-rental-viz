@@ -119,7 +119,7 @@
             .on("mouseleave", mouseleave);
 
             // add a legend
-		    var w = 140, h = 300;
+		    var w = 140, h = 450;
 
             var key = d3.select("#map-container")
                 .append("svg")
@@ -148,12 +148,12 @@
 
             key.append("rect")
                 .attr("width", w - 100)
-                .attr("height", h)
+                .attr("height", h - 100)
                 .style("fill", "url(#gradient)")
                 .attr("transform", "translate(0,10)");
 
             var y = d3.scaleLinear()
-                .range([h, 0])
+                .range([h - 100, 0])
                 .domain([minVal, maxVal]);
 
             var yAxis = d3.axisRight(y);
@@ -162,6 +162,20 @@
                 .attr("class", "y axis")
                 .attr("transform", "translate(41,10)")
                 .call(yAxis)
+            
+            key.append("rect")
+                .attr("width", 10)
+                .attr("height", 10)
+                .attr("stroke", "#000000")
+                .attr("stroke-width", 0.5)
+                .attr("transform", `translate(0,${h - 50})`)
+                .style("fill", "#808080")
+            
+            key.append("text")
+                .text("no data")
+                .attr("transform", `translate(20,${h - 43})`)
+                .style("font-size", "12px")
+            
         });
     })
     
