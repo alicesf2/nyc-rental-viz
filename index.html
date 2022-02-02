@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+      <h3 align="center">Average Median Rent Prices of NYC Neighborhoods 2021</h3>
       <div id="map-container"></div>
   </body>
   <script>
@@ -50,12 +51,27 @@
                 // grab neighborhood name
                 var dataNeighborhood = data[i]['areaName']
 
-                // grab neighborhood rent 
-                var dataRent = parseFloat(data[i]['2021-11']);
-                if (Number.isNaN(dataRent)) {
+                // grab neighborhood rent
+                var dataRentArr = []
+                for (var month = 1; month < 12; month++) {
+                  var dataRent = 0.0
+                  if (month >= 10) {
+                    dataRent = parseFloat(data[i][`2021-${month}`]);
+                  } else {
+                    dataRent = parseFloat(data[i][`2021-0${month}`])
+                  }
+                  if (Number.isNaN(dataRent)) {
                     continue
+                  }
+                  dataRentArr.push(dataRent)
                 }
 
+                // Calculate average rent
+                if (dataRentArr.length != 0) {
+                  var rentSum = dataRentArr.reduce((curSum, curVal) => curSum + curVal)
+                  var avgRent = rentSum / dataRentArr.length
+                }
+                
                 // find the corresponding neighborhood inside the json
                 for (var j = 0; j < json.length; j++) {
                     var jsonNeighborhood = json[j].properties.name
