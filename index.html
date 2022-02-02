@@ -28,17 +28,36 @@
         .projection(projection);
     
     d3.csv("rent.csv").then(function(data) {
+      console.log(data)
 
         // create chloropleth scale
         var dataArray = [];
+
         for (var i = 0; i < data.length; i++) {
-            var novRent = data[i]['2021-11']
-            if (novRent !== "") {
-                dataArray.push(novRent)
+          var dataRentArr = []
+          for (var month = 1; month < 12; month++) {
+            var dataRent = 0.0
+            if (month >= 10) {
+              dataRent = parseFloat(data[i][`2021-${month}`]);
+            } else {
+              dataRent = parseFloat(data[i][`2021-0${month}`])
             }
+            if (Number.isNaN(dataRent)) {
+              continue
+            }
+            dataRentArr.push(dataRent)
+          }
+          
+          // Calculate average rent
+          if (dataRentArr.length != 0) {
+            var rentSum = dataRentArr.reduce((curSum, curVal) => curSum + curVal)
+            var avgRent = Math.round(rentSum / dataRentArr.length)
+            dataArray.push({avgRent, name: data[i]['areaName']})
+          }
         }
-        var minVal = d3.min(dataArray)
-        var maxVal = d3.max(dataArray)
+
+        var minVal = d3.min(dataArray.map(x => x.avgRent))
+        var maxVal = d3.max(dataArray.map(x => x.avgRent))
         var ramp = d3.scaleLinear().domain([minVal * 0.7,maxVal * 0.7]).range([lowColor,highColor])
 
         d3.json("neighbs.json").then(function(json) {
@@ -46,32 +65,12 @@
             json = topojson.feature(json, json.objects.neighbs).features
 
             // loop through each neighborhood in the csv file
-            for (var i = 0; i < data.length; i++) {
+            for (var i = 0; i < dataArray.length; i++) {
 
                 // grab neighborhood name
-                var dataNeighborhood = data[i]['areaName']
+                var dataNeighborhood = dataArray[i].name;
 
-                // grab neighborhood rent
-                var dataRentArr = []
-                for (var month = 1; month < 12; month++) {
-                  var dataRent = 0.0
-                  if (month >= 10) {
-                    dataRent = parseFloat(data[i][`2021-${month}`]);
-                  } else {
-                    dataRent = parseFloat(data[i][`2021-0${month}`])
-                  }
-                  if (Number.isNaN(dataRent)) {
-                    continue
-                  }
-                  dataRentArr.push(dataRent)
-                }
-
-                // Calculate average rent
-                if (dataRentArr.length != 0) {
-                  var rentSum = dataRentArr.reduce((curSum, curVal) => curSum + curVal)
-                  var avgRent = rentSum / dataRentArr.length
-                }
-                
+          
                 // find the corresponding neighborhood inside the json
                 for (var j = 0; j < json.length; j++) {
                     var jsonNeighborhood = json[j].properties.name
@@ -79,7 +78,7 @@
                     if (dataNeighborhood == jsonNeighborhood) {
 
                         // copy data value into json
-                        json[j].properties['rent'] = dataRent;
+                        json[j].properties['rent'] = dataArray[i].avgRent;
 
                         // stop looking through the json
                         break;  
@@ -193,7 +192,7 @@
                 .style("font-size", "12px")
             
         });
-    })
+    });
     
 </script>
 </html>
